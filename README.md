@@ -1,4 +1,4 @@
-# 🎵 Music Recommender Simulation
+# 🎵 Music Recommender Simulation - Musicology
 
 ## Project Summary
 
