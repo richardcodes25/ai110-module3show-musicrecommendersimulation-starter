@@ -405,10 +405,18 @@ Read and complete `model_card.md`:
 
 [**Model Card**](model_card.md)
 
-Write 1 to 2 paragraphs here about what you learned:
+This project made recommenders feel a lot less like magic. I learned that turning data into a
+prediction is really just two steps: score every song against what the user wants (the
+Scoring Rule), then sort the scores and keep the best few (the Ranking Rule). A handful of
+simple point rules — genre, mood, and energy closeness — was enough to produce results that
+genuinely "feel" like recommendations, which showed me that big platforms start from these
+same basic ideas before adding more complex methods.
 
-- about how recommenders turn data into predictions
-- about where bias or unfairness could show up in systems like this
+I also saw how easily bias can sneak in. Because half my catalog is high-energy, loud songs
+kept showing up even for users who didn't ask for them, and weighting genre heavily created a
+"filter bubble" that hid great cross-genre matches. It made me realize that a recommender's
+output is only as fair as its data and its weights — and that unfairness can appear without
+anyone intending it. A fuller reflection is in the Model Card's **Personal Reflection** section.
 
 
 
