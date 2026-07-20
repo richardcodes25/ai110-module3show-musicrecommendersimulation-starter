@@ -17,17 +17,67 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+Real-world recommenders (Spotify, YouTube) mostly blend two ideas: **collaborative
+filtering** ("people who liked what you liked also enjoyed this") and **content-based
+filtering** ("this song *sounds like* the songs you already enjoy"). Big platforms lean
+heavily on collaborative signals — likes, skips, watch time, playlist adds — because they
+have millions of users to learn patterns from. My simulation doesn't have that crowd data,
+so it is a **content-based recommender**: it prioritizes matching the intrinsic attributes
+of each song to a user's stated taste profile. Specifically, it prioritizes getting the
+**vibe** right — genre first (a hard taste boundary), then how closely a song's *energy*
+matches what the user wants, then finer mood and acoustic preferences.
 
-Some prompts to answer:
+### The Algorithm Recipe
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+The system uses two rules working together:
 
-You can include a simple diagram or bullet list if helpful.
+- **Scoring Rule** — measures how good a *single* song is for the user, and returns a
+  number plus a list of human-readable reasons.
+- **Ranking Rule** — scores *every* song, sorts them from best to worst, and returns only
+  the top `k`. (A score alone isn't a recommendation; the ranking turns a pile of numbers
+  into an ordered answer.)
+
+For numeric features like `energy`, the score rewards **closeness**, not high or low
+values: `energy_score = 1 - abs(user.target_energy - song.energy)`. A perfect match scores
+`1.0` and the score falls off as the gap grows. (Note: `tempo_bpm` must be normalized to a
+0–1 scale before it can be mixed in this way.)
+
+Categorical features are scored by match with weights, in this priority order — **genre >
+energy > mood**. Genre is weighted highest because it's the strongest taste boundary
+(a jazz fan rarely wants metal, no matter the mood); mood is weighted lower because it's
+partly redundant with the numeric energy/valence signals.
+
+### Features used in this simulation
+
+Each **`Song`** uses these attributes (listed in the same order as the columns in
+`data/songs.csv`):
+
+- `id` — identity only, not scored
+- `title` — display only, not scored
+- `artist` — display only, not scored
+- `genre` — categorical taste boundary (highest weight)
+- `mood` — categorical refinement (happy, chill, intense, …)
+- `energy` (0–1) — the core "vibe" dial, scored by closeness
+- `tempo_bpm` — supporting signal (normalized before scoring)
+- `valence` (0–1) — emotional tone (bright vs. dark)
+- `danceability` (0–1) — supporting signal
+- `acousticness` (0–1) — acoustic/organic vs. electronic feel
+
+Each **`UserProfile`** stores the user's stated taste:
+
+- `favorite_genre` — the genre they want to hear
+- `favorite_mood` — the mood they're going for
+- `target_energy` (0–1) — the energy level they want, compared by closeness
+- `likes_acoustic` — whether to reward high-acousticness songs
+
+### Weights (starting point, tuned in the Experiments section)
+
+| Feature | Weight | Why |
+|---|---|---|
+| `genre` match | 3.0 | Strongest taste boundary |
+| `energy` closeness | 2.0 | Core "vibe" dial |
+| `mood` match | 1.5 | Refinement; partly redundant with energy |
+| `acousticness` fit | 1.0 | Supports the `likes_acoustic` preference |
 
 ---
 
